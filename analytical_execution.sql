@@ -1,4 +1,4 @@
--- ANÁLISE EXPLORATÓRIA DAS TABELAS
+-- ANÃLISE EXPLORATÃ“RIA DAS TABELAS
 EXEC sp_help 'nome_tabela' -- ideal fazer para cada uma das tabelas
 
 SELECT COUNT(*) AS total_linhas
@@ -13,7 +13,7 @@ SELECT
 FROM fato_pagamentos AS pag
 WHERE aprovador = registrador
 
--- além disso, incluí um indicador de “maiores ofensores”, onde podemos verificar o quantitativo de “autoaprovação” de notas fiscais por usuário registrador
+-- alÃ©m disso, incluÃ­ um indicador de â€œmaiores ofensoresâ€, onde podemos verificar o quantitativo de â€œautoaprovaÃ§Ã£oâ€ de notas fiscais por usuÃ¡rio registrador
 SELECT
 registrador,
 COUNT(*) AS qtd_autoaprovacoes
@@ -48,7 +48,7 @@ FROM (
     ) AS base_subquery
 WHERE status_contrato = 'Vencido'
 
--- c) Quais fornecedores estão duplicados (mesmo nome com CNPJs diferentes)?
+-- c) Quais fornecedores estÃ£o duplicados (mesmo nome com CNPJs diferentes)?
 SELECT 
     fornecedor,
     cnpj,
@@ -64,7 +64,7 @@ WHERE fornecedor IN
 GROUP BY fornecedor, cnpj
 HAVING COUNT (fornecedor) > 1
 
--- após verificar ,ais a fundo o resultado acima, percebi que a QUERY não detecta casos de fornecedores iguais com escritas diferentes, portanto, tivemos que normalizar a coluna fornecedor
+-- apÃ³s verificar ,ais a fundo o resultado acima, percebi que a QUERY nÃ£o detecta casos de fornecedores iguais com escritas diferentes, portanto, tivemos que normalizar a coluna fornecedor
 SELECT 
     fornecedor,
     cnpj,
@@ -78,14 +78,14 @@ WHERE fornecedor COLLATE Latin1_General_CI_AI IN
     HAVING COUNT(DISTINCT cnpj) > 1
 	)
 
--- d) Quais notas fiscais possuem imposto calculado diferente do imposto correto? Mostre o valor das diferenças; ranqueie da maior diferença para a menor.
+-- d) Quais notas fiscais possuem imposto calculado diferente do imposto correto? Mostre o valor das diferenÃ§as; ranqueie da maior diferenÃ§a para a menor.
 SELECT *, (imposto_correto  - imposto_calculado) AS diferenca_imposto
 FROM fato_compras
 WHERE (imposto_correto  - imposto_calculado) <> '0'
 ORDER BY (imposto_correto  - imposto_calculado) DESC
 
--- e) Qual a quantidade e valor de manutenções preventivas e corretivas no período? Adicione a comparação da manutenção preventiva  - corretiva para quantidade e valor? 
--- 1ª pergunta:
+-- e) Qual a quantidade e valor de manutenÃ§Ãµes preventivas e corretivas no perÃ­odo? Adicione a comparaÃ§Ã£o da manutenÃ§Ã£o preventiva  - corretiva para quantidade e valor? 
+-- 1Âª pergunta:
 SELECT
 	tipo,
 	COUNT (*)   AS qtd_manut,  -- somatorio da quantidade de registros
@@ -93,7 +93,7 @@ SELECT
 FROM fato_manutencao
 GROUP BY tipo
 
--- 2ª pergunta:
+-- 2Âª pergunta:
 SELECT
     tipo,
     COUNT (*)   AS qtd_manutencoes, -- somatorio da quantidade de registros
@@ -101,11 +101,11 @@ SELECT
     ROUND
         (
         (SUM(custo) / SUM (SUM (custo)) OVER()) * 100,
-        2) AS percentual_custo -- representação percentual de cada tipo de manutencao
+        2) AS percentual_custo -- representaÃ§Ã£o percentual de cada tipo de manutencao
 FROM fato_manutencao
 GROUP BY tipo
 
--- f) Quais receitas foram contratadas, mas não faturadas integralmente? Apresente a porcentagem faturada e o valor restante a ser faturado
+-- f) Quais receitas foram contratadas, mas nÃ£o faturadas integralmente? Apresente a porcentagem faturada e o valor restante a ser faturado
 SELECT
     *,
     (valor_contratado  - valor_faturado)            AS valor_a_faturar,
@@ -117,7 +117,7 @@ FROM fato_receitas
 WHERE (valor_contratado  - valor_faturado) <> '0'
 ORDER BY (valor_contratado  - valor_faturado)
 
--- adicional: verificar, na tabela fato “fato_compras”, se há registros de compras com “Numero_NF” duplicados
+-- adicional: verificar, na tabela fato â€œfato_comprasâ€, se hÃ¡ registros de compras com â€œNumero_NFâ€ duplicados
 -- analisar se o resultado se trata de um registro duplicado da compra (como um todo) ou se foi apenas um erro no registro da nota fiscal
 -- mostrar quantas vezes cada nota fiscal repetida aparece (se se ela se repete 2, 3 ou mais vezes)
 SELECT
@@ -131,4 +131,5 @@ WHERE numero_nf IN
     GROUP BY numero_nf
     HAVING COUNT (*) > 1
     )
+
 ORDER BY numero_nf
